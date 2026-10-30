@@ -18,7 +18,7 @@ class CategoryController extends Controller
         $categories = Category::query()
             ->withCount('writings')
             ->orderBy('name')
-            ->paginate(12);
+            ->get();
 
         return view('admin.categories.index', compact('categories'));
     }

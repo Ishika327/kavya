@@ -78,4 +78,17 @@ class CategoryManagementTest extends TestCase
 
         $this->assertDatabaseHas('categories', ['id' => $category->id]);
     }
+
+    public function test_admin_category_list_shows_all_categories_without_pagination(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Category::factory()->count(14)->create();
+
+        $this->actingAs($admin)
+            ->get(route('admin.categories.index'))
+            ->assertOk()
+            ->assertDontSee('Previous')
+            ->assertDontSee('Next')
+            ->assertDontSee('Showing 1 to');
+    }
 }

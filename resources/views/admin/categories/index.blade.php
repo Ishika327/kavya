@@ -41,8 +41,5 @@
             <div class="p-4 text-muted">No categories have been created yet.</div>
         @endforelse
     </div>
-    @if ($categories->hasPages())
-        <div class="card-footer bg-white border-0 p-3">{{ $categories->links() }}</div>
-    @endif
 </div>
 @endsection
