@@ -15,10 +15,12 @@ RUN npm run build
 FROM php:8.3-apache
 
 
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libicu-dev \
     libzip-dev \
     libsqlite3-dev \
+    libonig-dev \
     unzip \
     && docker-php-ext-install -j"$(nproc)" \
         pdo_sqlite \
@@ -29,6 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         opcache \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
+
 
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
