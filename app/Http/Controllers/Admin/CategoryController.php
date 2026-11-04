@@ -53,17 +53,18 @@ class CategoryController extends Controller
     {
         $data = $request->safe()->only(['name', 'description']);
         $data['slug'] = Str::slug($data['name']);
+        $oldImage = $category->image_path;
 
         if ($request->hasFile('image')) {
-            $oldImage = $category->image_path;
             $data['image_path'] = $request->file('image')->store('categories', 'public');
-            $category->update($data);
+        } elseif ($request->boolean('remove_image')) {
+            $data['image_path'] = null;
+        }
 
-            if ($oldImage !== null) {
-                Storage::disk('public')->delete($oldImage);
-            }
-        } else {
-            $category->update($data);
+        $category->update($data);
+
+        if ($oldImage !== null && array_key_exists('image_path', $data)) {
+            Storage::disk('public')->delete($oldImage);
         }
 
         return redirect()

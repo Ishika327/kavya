@@ -35,11 +35,14 @@
         <button class="btn btn-outline-dark" id="reading-size-toggle" type="button">
             <i class="fa-solid fa-text-height me-1" aria-hidden="true"></i>Text size
         </button>
+        <span class="btn btn-outline-dark pe-none">
+            <i class="fa-solid fa-heart me-1" aria-hidden="true"></i>{{ number_format($writing->like_count) }} likes
+        </span>
         @auth
             <form method="POST" action="{{ route('writings.like', $writing) }}">
                 @csrf
                 <button class="btn {{ $isLiked ? 'btn-dark' : 'btn-outline-dark' }}" type="submit">
-                    <i class="fa-{{ $isLiked ? 'solid' : 'regular' }} fa-heart me-1" aria-hidden="true"></i>{{ $isLiked ? 'Liked' : 'Like' }} · {{ number_format($writing->like_count) }}
+                    <i class="fa-{{ $isLiked ? 'solid' : 'regular' }} fa-heart me-1" aria-hidden="true"></i>{{ $isLiked ? 'Unlike' : 'Like' }}
                 </button>
             </form>
             <form method="POST" action="{{ route('writings.favorite', $writing) }}">
@@ -49,7 +52,7 @@
                 </button>
             </form>
         @else
-            <a class="btn btn-outline-dark" href="{{ route('login') }}">Login to like or save</a>
+            <a class="btn btn-outline-dark" href="{{ route('login') }}">Login to like</a>
         @endauth
         <button class="btn btn-outline-dark" id="share-writing" type="button">
             <i class="fa-solid fa-share-nodes me-1" aria-hidden="true"></i>Share

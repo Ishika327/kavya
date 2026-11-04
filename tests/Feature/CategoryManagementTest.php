@@ -65,6 +65,43 @@ class CategoryManagementTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_admin_can_replace_or_remove_a_category_image(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'admin']);
+        $category = Category::factory()->create([
+            'image_path' => 'categories/original.jpg',
+        ]);
+        Storage::disk('public')->put('categories/original.jpg', 'original');
+
+        $this->actingAs($admin)
+            ->put(route('admin.categories.update', $category), [
+                'name' => $category->name,
+                'description' => $category->description,
+                'image' => UploadedFile::fake()->create('replacement.png', 100, 'image/png'),
+            ])
+            ->assertRedirect(route('admin.categories.index'));
+
+        $category->refresh();
+        $this->assertNotSame('categories/original.jpg', $category->image_path);
+        Storage::disk('public')->assertMissing('categories/original.jpg');
+        Storage::disk('public')->assertExists($category->image_path);
+
+        $currentImage = $category->image_path;
+
+        $this->actingAs($admin)
+            ->put(route('admin.categories.update', $category), [
+                'name' => $category->name,
+                'description' => $category->description,
+                'remove_image' => '1',
+            ])
+            ->assertRedirect(route('admin.categories.index'));
+
+        $category->refresh();
+        $this->assertNull($category->image_path);
+        Storage::disk('public')->assertMissing($currentImage);
+    }
+
     public function test_category_with_writings_cannot_be_deleted(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

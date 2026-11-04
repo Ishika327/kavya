@@ -93,6 +93,8 @@ class WritingController extends Controller
         $oldImage = $writing->cover_image_path;
         if ($request->hasFile('cover_image')) {
             $data['cover_image_path'] = $request->file('cover_image')->store('writings', 'public');
+        } elseif ($request->boolean('remove_cover_image')) {
+            $data['cover_image_path'] = null;
         }
 
         DB::transaction(function () use ($data, $writing): void {
@@ -100,7 +102,7 @@ class WritingController extends Controller
             $this->clearExclusiveSelections($writing);
         });
 
-        if ($request->hasFile('cover_image') && $oldImage !== null) {
+        if ($oldImage !== null && array_key_exists('cover_image_path', $data)) {
             Storage::disk('public')->delete($oldImage);
         }
 

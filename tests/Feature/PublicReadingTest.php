@@ -52,6 +52,7 @@ class PublicReadingTest extends TestCase
             ->assertSee('A quiet morning.')
             ->assertSee('Reading mode')
             ->assertSee('Share as image')
+            ->assertSee('0 likes')
             ->assertSee('kavya-theme')
             ->assertSee('integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"', false);
     }
@@ -105,15 +106,19 @@ class PublicReadingTest extends TestCase
         $this->post(route('writings.favorite', $writing))->assertRedirect();
         $this->post(route('writings.comments.store', $writing), [
             'content' => 'This moved me.',
-        ])->assertRedirect()->assertSessionHas('status');
+        ])->assertRedirect()->assertSessionHas('status', 'Your comment was published.');
 
         $this->assertDatabaseCount('likes', 0);
         $this->assertDatabaseCount('favorites', 1);
         $this->assertDatabaseHas('comments', [
             'user_id' => $reader->id,
             'writing_id' => $writing->id,
-            'status' => 'pending',
+            'status' => 'approved',
         ]);
+
+        $this->get(route('writings.show', $writing))
+            ->assertOk()
+            ->assertSee('This moved me.');
         $this->assertDatabaseCount('reading_histories', 1);
         $this->assertSame(1, ReadingHistory::query()->count());
     }
@@ -146,6 +151,33 @@ class PublicReadingTest extends TestCase
         $this->actingAs($reader)
             ->get(route('history'))
             ->assertOk();
+    }
+
+    public function test_like_count_and_published_comments_are_visible_to_other_readers(): void
+    {
+        $author = User::factory()->create();
+        $otherReader = User::factory()->create();
+        $writing = Writing::factory()->create([
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+
+        $this->actingAs($author)
+            ->post(route('writings.like', $writing))
+            ->assertRedirect();
+
+        $this->actingAs($author)
+            ->post(route('writings.comments.store', $writing), [
+                'content' => 'A public reader thought.',
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($otherReader)
+            ->get(route('writings.show', $writing))
+            ->assertOk()
+            ->assertSee('1 likes')
+            ->assertSee('A public reader thought.')
+            ->assertSee($author->name);
     }
 
     public function test_explore_filters_by_category_language_and_popularity(): void

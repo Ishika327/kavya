@@ -45,6 +45,16 @@
                 </div>
                 <div class="col-12">
                     <label class="form-label" for="cover_image">Cover image <span class="text-muted">(optional)</span></label>
+                    @if ($writing->cover_image_path ?? null)
+                        <div class="mb-3">
+                            <p class="form-text mt-0 mb-2">Current cover image</p>
+                            <img class="img-thumbnail object-fit-cover" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($writing->cover_image_path) }}" alt="Current cover image" width="240" height="140">
+                        </div>
+                        <div class="d-flex gap-2 mb-2">
+                            <label class="btn btn-outline-secondary btn-sm mb-0" for="cover_image">Edit photo</label>
+                            <button class="btn btn-outline-danger btn-sm" name="remove_cover_image" type="submit" value="1" onclick="return confirm('Delete this photo?');">Delete photo</button>
+                        </div>
+                    @endif
                     <input class="form-control @error('cover_image') is-invalid @enderror" id="cover_image" name="cover_image" type="file" accept=".jpg,.jpeg,.png,.webp">
                     <div class="form-text">JPG, PNG, or WebP up to 4 MB.</div>
                     @error('cover_image')<div class="invalid-feedback">{{ $message }}</div>@enderror

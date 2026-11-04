@@ -19,7 +19,7 @@
         </div>
         <div class="col-lg-5 d-none d-lg-block text-center">
             <i class="fa-solid fa-feather-pointed display-1 opacity-25" aria-hidden="true"></i>
-        </div>
+        </div>f
     </div>
 </section>
 

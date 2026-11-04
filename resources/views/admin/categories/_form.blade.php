@@ -17,6 +17,16 @@
             </div>
             <div class="mb-4">
                 <label class="form-label" for="image">Category image <span class="text-muted">(optional)</span></label>
+                @if ($category->image_path ?? null)
+                    <div class="mb-3">
+                        <p class="form-text mt-0 mb-2">Current category image</p>
+                        <img class="img-thumbnail object-fit-cover" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($category->image_path) }}" alt="Current category image" width="240" height="140">
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" id="remove_image" name="remove_image" type="checkbox" value="1" @checked(old('remove_image'))>
+                        <label class="form-check-label" for="remove_image">Remove current image</label>
+                    </div>
+                @endif
                 <input class="form-control @error('image') is-invalid @enderror" id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp">
                 <div class="form-text">JPG, PNG, or WebP up to 2 MB.</div>
                 @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror

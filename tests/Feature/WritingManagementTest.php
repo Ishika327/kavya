@@ -74,6 +74,55 @@ class WritingManagementTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_admin_can_remove_a_writing_cover_image(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'admin']);
+        $category = Category::factory()->create();
+        $writing = Writing::factory()->create([
+            'category_id' => $category->id,
+            'cover_image_path' => 'writings/cover.jpg',
+        ]);
+        Storage::disk('public')->put('writings/cover.jpg', 'cover');
+
+        $this->actingAs($admin)
+            ->put(route('admin.writings.update', $writing), [
+                'category_id' => $category->id,
+                'title' => $writing->title,
+                'content' => $writing->content,
+                'language' => $writing->language,
+                'status' => $writing->status,
+                'remove_cover_image' => '1',
+            ])
+            ->assertRedirect(route('admin.writings.index'));
+
+        $writing->refresh();
+        $this->assertNull($writing->cover_image_path);
+        Storage::disk('public')->assertMissing('writings/cover.jpg');
+    }
+
+    public function test_edit_form_shows_existing_cover_image(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'admin']);
+        $category = Category::factory()->create();
+        $imagePath = 'writings/existing-cover.jpg';
+        Storage::disk('public')->put($imagePath, 'image contents');
+        $writing = Writing::factory()->create([
+            'category_id' => $category->id,
+            'cover_image_path' => $imagePath,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.writings.edit', $writing))
+            ->assertOk()
+            ->assertSee(Storage::disk('public')->url($imagePath), false)
+            ->assertSee('Current cover image')
+            ->assertSee('Edit photo')
+            ->assertSee('Delete photo')
+            ->assertSee('name="remove_cover_image"', false);
+    }
+
     public function test_writing_requires_an_existing_category_and_valid_status(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

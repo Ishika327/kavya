@@ -73,10 +73,11 @@ class EngagementController extends Controller
             'user_id' => $request->user()->id,
             'writing_id' => $writing->id,
             'content' => $validated['content'],
-            'status' => 'pending',
+            'status' => 'approved',
+            'approved_at' => now(),
         ]);
 
-        return back()->with('status', 'Your comment was submitted for review.');
+        return back()->with('status', 'Your comment was published.');
     }
 
     public function favorites(Request $request): RedirectResponse|View

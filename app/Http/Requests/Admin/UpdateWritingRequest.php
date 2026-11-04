@@ -45,6 +45,7 @@ class UpdateWritingRequest extends FormRequest
             'is_poem_of_week' => ['boolean'],
             'is_anonymous' => ['boolean'],
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'remove_cover_image' => ['boolean'],
         ];
     }
 }
